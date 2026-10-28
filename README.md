@@ -204,6 +204,3 @@ This project is intended for educational purposes, controlled experiments, and a
 3. Moosavi-Dezfooli, S.-M. et al. (2016). *DeepFool: A Simple and Accurate Method to Fool Deep Neural Networks*. CVPR.
 4. Carlini, N., and Wagner, D. (2017). *Towards Evaluating the Robustness of Neural Networks*. IEEE Symposium on Security and Privacy.
 
-## License
-
-Add a `LICENSE` file specifying the license under which you intend to distribute this project.
