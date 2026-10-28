@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 
 # --------------------------- Configuration ---------------------------
 
-IMAGE_PATH = r"E:\Projects\Python\CV\Adverserial_perturbation\test.png"
+IMAGE_PATH = r"test.png"
 OUTPUT_DIR = Path("adversarial_results")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
