@@ -1,78 +1,48 @@
-# Adversarial Image Perturbation using PyTorch
+# Adversarial Image Perturbation Demo
 
-A Python-based image processing project for generating and evaluating adversarial examples against a pretrained **ResNet-18 ImageNet classifier** using PyTorch and TorchVision.
+A Python-based demonstration of adversarial attacks against a pretrained **ResNet-18 ImageNet classifier** using PyTorch and TorchVision.
 
-The project implements four adversarial attack methods—Fast Gradient Sign Method (FGSM), Projected Gradient Descent (PGD), DeepFool, and Carlini–Wagner (C&W) L2—to investigate how small, controlled perturbations can affect image classification predictions.
+This project implements four gradient-based adversarial attack methods: FGSM, PGD, DeepFool, and a simplified Carlini–Wagner (C&W) L2 attack. It evaluates the resulting adversarial images, compares classification predictions, calculates perturbation metrics, and saves the outputs for visual analysis.
 
-## Overview
+## Features
 
-Deep learning image classifiers can be sensitive to carefully crafted changes in their input images. Adversarial attacks exploit this property by generating perturbed images that may cause a model to misclassify an image.
+- Pretrained TorchVision ResNet-18 ImageNet classifier.
+- Four adversarial attack implementations:
+  - **FGSM** — Fast Gradient Sign Method
+  - **PGD** — Projected Gradient Descent
+  - **DeepFool** — iterative decision-boundary attack
+  - **C&W L2** — simplified Carlini–Wagner L2 optimization
+- Automatic selection of CUDA or CPU.
+- Original and adversarial prediction comparison.
+- Perturbation metrics: L∞ distance, L2 distance, and pixel RMSE.
+- Automatic saving of generated images.
+- Side-by-side visualization of the original image and all four adversarial outputs.
 
-This project provides a local Python workflow to:
+## Technologies Used
 
-- Load an input image and preprocess it for ResNet-18.
-- Generate adversarial examples using four attack algorithms.
-- Compare the original and adversarial model predictions.
-- Measure perturbation magnitude and image distortion.
-- Save generated adversarial images for visual inspection and further analysis.
-
-The Python implementation is intended to be developed and validated independently before potential integration into a native Android camera application.
-
-## Algorithms
-
-| Algorithm | Description | Primary objective |
-|---|---|---|
-| FGSM | Fast Gradient Sign Method | Generate a perturbation using the sign of the loss gradient in one step. |
-| PGD | Projected Gradient Descent | Iteratively update the input while constraining the perturbation. |
-| DeepFool | Iterative boundary-based attack | Find a small perturbation that crosses a classifier's decision boundary. |
-| C&W L2 | Carlini–Wagner L2 attack | Optimize a classification objective while minimizing L2 distortion. |
-
-The effectiveness of each attack depends on the implementation, hyperparameters, input preprocessing, and model predictions.
-
-## Technology Stack
-
-- **Python** — implementation and experimentation
-- **PyTorch** — model inference, gradient computation, and optimization
-- **TorchVision** — pretrained ResNet-18 and ImageNet preprocessing utilities
-- **Pillow (PIL)** — image loading and saving
-- **NumPy** — numerical operations and metric calculations
-- **Matplotlib** — optional visualization of original and adversarial images
-
-## Model
-
-The prototype uses a pretrained ResNet-18 model trained on ImageNet.
-
-The model is used to obtain predictions for the original image and its adversarial variants. During gradient-based attacks, the model's parameters remain fixed while gradients are computed with respect to the input image.
-
-The model's expected input preprocessing must be applied consistently. For the standard TorchVision ImageNet ResNet-18 weights, this includes resizing and cropping, conversion to a tensor, and ImageNet normalization as specified by the selected weights.
+- Python
+- PyTorch
+- TorchVision
+- Pillow
+- Matplotlib
 
 ## Project Structure
 
-A suggested repository structure is:
-
 ```text
 adversarial-image-perturbation/
+├── adversarial_demo.py
+├── test.png
 ├── README.md
-├── requirements.txt
-├── main.py
-├── attacks/
-│   ├── __init__.py
-│   ├── fgsm.py
-│   ├── pgd.py
-│   ├── deepfool.py
-│   └── cw_l2.py
-├── utils/
-│   ├── __init__.py
-│   ├── image_utils.py
-│   ├── metrics.py
-│   └── model_utils.py
-├── data/
-│   └── input/
-└── results/
-    └── .gitkeep
+└── adversarial_results/
+    ├── original.png
+    ├── fgsm.png
+    ├── pgd.png
+    ├── deepfool.png
+    ├── cw_l2.png
+    └── comparison.png
 ```
 
-*Note: This is a proposed structure. Adjust the filenames and directories to match the actual implementation.*
+`test.png` is the example input image. The script creates the `adversarial_results/` directory automatically. The output files appear after the script runs successfully.
 
 ## Installation
 
@@ -83,166 +53,157 @@ git clone <YOUR_REPOSITORY_URL>
 cd adversarial-image-perturbation
 ```
 
-### 2. Create a virtual environment
+Replace `<YOUR_REPOSITORY_URL>` with your GitHub repository URL.
 
-```bash
-python -m venv .venv
-```
+### 2. Install dependencies
 
-Activate it on your operating system.
-
-**Windows (PowerShell):**
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-**Linux / macOS:**
-
-```bash
-source .venv/bin/activate
-```
-
-### 3. Install dependencies
-
-Create a `requirements.txt` file containing the dependencies required by your implementation:
-
-```text
-torch
-torchvision
-Pillow
-numpy
-matplotlib
-```
-
-Install them with:
+Python 3.10 or newer is a reasonable starting point, subject to compatibility with your selected PyTorch and TorchVision versions.
 
 ```bash
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+pip install torch torchvision pillow matplotlib
 ```
 
-For CUDA acceleration, install a PyTorch build compatible with your installed NVIDIA driver and CUDA environment. Refer to the official [PyTorch installation guide](https://pytorch.org/get-started/locally/).
+For GPU acceleration, install a PyTorch version compatible with your system and CUDA environment. See the [official PyTorch installation guide](https://pytorch.org/get-started/locally/).
 
-## Usage
+## Input Image Configuration
 
-Place an input image in the input directory, then run the Python entry point:
+The script currently uses the following configuration:
+
+```python
+IMAGE_PATH = r"..\test.png"
+```
+
+Place your input image at the specified path, or modify `IMAGE_PATH` to point to your image.
+
+For example, if the image is in the same directory as `adversarial_demo.py`, use:
+
+```python
+IMAGE_PATH = "test.png"
+```
+
+The script converts the image to RGB and preprocesses it for the ResNet-18 classifier by resizing, center cropping to 224 × 224 pixels, and converting it to a tensor.
+
+## Run the Project
+
+Execute the Python script:
 
 ```bash
-python main.py --image data/input/example.jpg
+python adversarial_demo.py
 ```
 
-The command above is an example interface. The actual command-line arguments must match those implemented in `main.py`.
+On the first run, TorchVision downloads the pretrained ResNet-18 ImageNet weights. An internet connection is required for this initial download unless the weights are already cached locally.
 
-Depending on the implementation, you may be able to select an attack method, configure its parameters, and choose an output directory.
+The script automatically selects CUDA when available and otherwise uses the CPU.
 
-For example, a future command-line interface could support:
+## Adversarial Attack Methods
 
-```bash
-python main.py \
-    --image data/input/example.jpg \
-    --attack fgsm \
-    --output-dir results/
+### 1. FGSM — Fast Gradient Sign Method
+
+FGSM generates an adversarial image in one gradient-based step by perturbing the input in the direction that increases the classification loss.
+
+Configured perturbation magnitude:
+
+```python
+EPSILON = 8 / 255
 ```
 
-Do not use these example commands until the corresponding arguments have been implemented.
+### 2. PGD — Projected Gradient Descent
 
-## Experimental Workflow
+PGD iteratively updates the input image using gradient ascent and projects each update back into the permitted perturbation region.
 
-1. **Load the image:** Read the input image and preserve a copy of the original.
-2. **Preprocess the input:** Apply the preprocessing expected by the selected ResNet-18 weights.
-3. **Run baseline inference:** Record the original predicted class and confidence score.
-4. **Generate perturbations:** Apply FGSM, PGD, DeepFool, or C&W L2.
-5. **Run adversarial inference:** Evaluate the perturbed image using the same classifier and preprocessing pipeline.
-6. **Calculate metrics:** Measure the difference between the original and adversarial images.
-7. **Save the results:** Export the adversarial images and record the corresponding predictions and metrics.
+Configuration:
 
-For reproducible comparisons, use the same input image, model weights, preprocessing configuration, and evaluation procedure across attacks.
+```python
+PGD_ALPHA = 2 / 255
+PGD_STEPS = 20
+```
+
+The implementation starts from a random perturbation within the specified L∞ constraint.
+
+### 3. DeepFool
+
+DeepFool iteratively estimates the nearest decision boundary among a subset of competing classes and adjusts the image to cross the classifier's boundary.
+
+Configuration:
+
+```python
+DEEPFOOL_STEPS = 30
+DEEPFOOL_CLASSES = 10
+```
+
+The implementation considers the highest-scoring classes at each iteration and stops early if the predicted class changes.
+
+### 4. Carlini–Wagner L2
+
+The simplified C&W L2 implementation optimizes a classification margin objective alongside the squared L2 distance between the original and adversarial images.
+
+Configuration:
+
+```python
+CW_STEPS = 300
+CW_LEARNING_RATE = 0.01
+CW_C = 1.0
+CW_KAPPA = 0.0
+```
+
+The script tracks the lowest-L2 successful adversarial candidate found during optimization. If no successful candidate is found, it returns the final optimization candidate and reports the unsuccessful search.
+
+**Note:** This is a simplified implementation, not a complete reproduction of the original C&W attack with its full optimization and binary-search procedure.
 
 ## Evaluation Metrics
 
-The following metrics can be used to evaluate the generated adversarial examples.
+For each generated image, the script reports:
 
-| Metric | Purpose |
+| Metric | Description |
 |---|---|
-| Original prediction | Records the classifier's predicted class before perturbation. |
-| Adversarial prediction | Records the predicted class after perturbation. |
-| Prediction confidence | Compares the model's confidence scores before and after perturbation. |
-| L∞ distance | Measures the maximum absolute pixel-wise difference. |
-| L2 distance | Measures the Euclidean norm of the perturbation. |
-| Mean Squared Error (MSE) | Measures the average squared pixel-wise difference. |
-| Peak Signal-to-Noise Ratio (PSNR) | Provides a signal-based measure of image distortion. |
-| Attack success rate | Measures the proportion of evaluated inputs for which the attack meets its defined success criterion. |
+| Prediction | ImageNet class predicted for the adversarial image |
+| Confidence | Softmax probability of the predicted class |
+| Prediction changed | Whether the predicted class differs from the original prediction |
+| L∞ difference | Maximum absolute pixel difference |
+| L2 difference | Euclidean norm of the pixel perturbation |
+| Pixel RMSE | Root mean squared pixel difference |
 
-For targeted attacks, success means reaching the specified target class. For untargeted attacks, success is commonly defined as changing the original correct prediction to another class. The evaluation should explicitly state which definition is used.
+The script also saves a comparison figure displaying the original and adversarial images with their predicted labels and confidence scores.
 
-Calculate image-distortion metrics in a consistent pixel-value range, such as `[0, 1]`. If metrics are calculated on normalized model inputs, account for the normalization before interpreting the results as pixel-space distortion.
+These metrics quantify changes to the classifier input; they do not, by themselves, establish perceptual similarity or attack success against other models.
 
-## Output
+## Output Files
 
-The results directory can contain:
+After a successful execution, the `adversarial_results/` directory contains:
 
-- Generated adversarial images.
-- Original and adversarial predicted class labels.
-- Confidence scores.
-- Perturbation magnitudes.
-- Image-quality metrics.
-- Experimental configuration and execution logs.
+| File | Description |
+|---|---|
+| `original.png` | Preprocessed original image |
+| `fgsm.png` | FGSM-generated image |
+| `pgd.png` | PGD-generated image |
+| `deepfool.png` | DeepFool-generated image |
+| `cw_l2.png` | C&W L2-generated image |
+| `comparison.png` | Side-by-side visual comparison |
 
-Example output organization:
-
-```text
-results/
-├── fgsm/
-│   └── example_fgsm.png
-├── pgd/
-│   └── example_pgd.png
-├── deepfool/
-│   └── example_deepfool.png
-├── cw_l2/
-│   └── example_cw_l2.png
-└── metrics.csv
-```
-
-The output filenames and structure are illustrative and should be adapted to the actual implementation.
-
-## Implementation Considerations
-
-- **Input normalization:** Apply the preprocessing associated with the exact pretrained weights used.
-- **Gradient computation:** FGSM, PGD, DeepFool, and C&W L2 require gradient-based optimization or related gradient calculations.
-- **Model evaluation:** Use evaluation mode for inference while preserving gradient computation during attacks.
-- **Perturbation constraints:** Define the permitted perturbation magnitude and input bounds for each algorithm.
-- **Attack configuration:** Record algorithm-specific parameters, including step size, iteration count, and optimization settings.
-- **Image saving:** Convert tensors back into the correct pixel range before saving images.
-- **Reproducibility:** Record dependency versions, model weights, random seeds where applicable, and experimental settings.
-- **Performance:** Attack execution time and memory consumption can vary significantly with the algorithm and hardware.
+The console also prints the predicted class, confidence, prediction-change status, and perturbation metrics for each attack.
 
 ## Limitations
 
-- Results depend on the pretrained classifier and its ImageNet label space.
-- A successful attack against ResNet-18 does not automatically transfer to other models.
-- Classification changes do not necessarily imply that a human observer will perceive a meaningful difference.
-- Pixel-space perturbation metrics do not fully characterize perceptual similarity.
-- White-box gradient-based attacks may be computationally expensive, particularly iterative optimization methods such as PGD and C&W L2.
-- The Python prototype does not itself provide native Android camera access or guarantee that adversarial perturbations will survive image resizing, JPEG compression, or other camera-processing operations.
-
-## Future Work
-
-- Compare attack success rates and perturbation magnitudes across the four algorithms.
-- Evaluate additional image classifiers and investigate transferability.
-- Study robustness under resizing, compression, and other image transformations.
-- Profile execution time and memory requirements.
-- Validate a consistent preprocessing and image-saving pipeline for potential Android integration.
-- Explore exporting compatible model components to an on-device inference runtime, subject to the requirements of each attack algorithm.
+- The classifier is pretrained on ImageNet and is not fine-tuned by this script.
+- FGSM and PGD use the original predicted class as the optimization label. They are intended as untargeted attacks, but a changed prediction is not guaranteed.
+- DeepFool searches a limited set of high-scoring classes rather than all possible ImageNet classes.
+- C&W L2 uses a fixed `C` value and does not implement the complete original attack procedure.
+- The script does not calculate a formal aggregate attack success rate across a dataset; it evaluates one input image per run.
+- The image is resized and center-cropped before evaluation, so the saved outputs represent the processed 224 × 224 input rather than the original full-resolution photograph.
+- Runtime depends on the attack, hardware, and selected parameters. C&W L2 may be particularly slow on CPU.
 
 ## Responsible Use
 
-This project is intended for educational research, controlled experimentation, and the evaluation of machine-learning model robustness. Use it with images and systems you are authorized to test.
+This project is intended for educational purposes, controlled experiments, and authorized research into machine-learning robustness. Use it only with images and models you own or are authorized to test.
 
 ## References
 
-- Goodfellow, I. J., Shlens, J., and Szegedy, C. (2015). *Explaining and Harnessing Adversarial Examples*. ICLR.
-- Madry, A. et al. (2018). *Towards Deep Learning Models Resistant to Adversarial Attacks*. ICLR.
-- Moosavi-Dezfooli, S.-M. et al. (2016). *DeepFool: A Simple and Accurate Method to Fool Deep Neural Networks*. CVPR.
-- Carlini, N., and Wagner, D. (2017). *Towards Evaluating the Robustness of Neural Networks*. IEEE Symposium on Security and Privacy.
+1. Goodfellow, I. J., Shlens, J., and Szegedy, C. (2015). *Explaining and Harnessing Adversarial Examples*. ICLR.
+2. Madry, A. et al. (2018). *Towards Deep Learning Models Resistant to Adversarial Attacks*. ICLR.
+3. Moosavi-Dezfooli, S.-M. et al. (2016). *DeepFool: A Simple and Accurate Method to Fool Deep Neural Networks*. CVPR.
+4. Carlini, N., and Wagner, D. (2017). *Towards Evaluating the Robustness of Neural Networks*. IEEE Symposium on Security and Privacy.
 
+## License
+
+Add a `LICENSE` file specifying the license under which you intend to distribute this project.
